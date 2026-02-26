@@ -7,23 +7,16 @@ run the following commands on a raspberry py
 # Prerequisites
 ```sh
 # Install python
-apt-get install python
-apt-get -y install python-pip
+sudo apt-get install python3 python3-pip -y
 
-# Update pip
-pip install --upgrade pip
-
-# Import crcmod
-pip install -U crcmod
-
-# Import serial 
-pip install -U pyserial  
+# Install python libraries
+sudo pip3 install pyserial crcmod requests --break-system-packages
 ```
 
 # Install on rasberian
 ```sh 
 cd /var/tmp
-git clone -b master https://github.com/EdwinBontenbal/DSMR2Emoncms.git
+git clone -b master https://github.com/koenr/DSMR2Emoncms.git
 cd DSMR2Emoncms/
 cp DSMR2Emoncms.py /usr/local/bin/DSMR2Emoncms.py
 cp DSMR2EmoncmsWatchdog.sh /usr/local/bin/DSMR2EmoncmsWatchdog.sh
@@ -34,11 +27,14 @@ cp DSMR2Emoncms_default.cfg  /etc/DSMR2Emoncms/DSMR2Emoncms.cfg
 
 add to crontab
 ```sh 
-crontab -e
+sudo crontab -e
 ```
 add
 ```sh 
-* * * * *       /usr/local/bin/DSMR2EmoncmsWatchdog.sh
+* * * * * /usr/local/bin/DSMR2EmoncmsWatchdog.sh >> /var/log/DSMR2EmoncmsWatchdog.cron.log 2>&1
+@reboot sleep 30 && /usr/local/bin/DSMR2EmoncmsWatchdog.sh >> /var/log/DSMR2EmoncmsWatchdog.cron.log 2>&1
+
+
 ```
 
 set logrotate
@@ -48,10 +44,13 @@ vi DSMR2Emoncms
 ```
 add
 ``` sh
-/var/log/DSMR2Emoncms_Watchdog.log /var/log/DSMR2Emoncms.log {
-        daily
-        rotate 7
-        compress
+/var/log/DSMR2Emoncms_Watchdog.log /var/log/DSMR2Emoncms.log /var/log/DSMR2EmoncmsWatchdog.cron.log  {
+    daily
+    rotate 7
+    compress
+    missingok
+    notifempty
+    size 10M
 }
 ```
 
@@ -65,6 +64,8 @@ If needed change the serial port "ser.port" preffered method is by-id.
 ls -l /dev/serial/by-id/
 # results in "usb-FTDI_USB__-__Serial-if00-port0"
 ser.port     = "/dev/serial/by-id/usb-FTDI_USB__-__Serial-if00-port0"
+
+Choose the correct meter by uncommenting the correct line.
 ```
 
  
