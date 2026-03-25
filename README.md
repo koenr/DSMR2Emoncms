@@ -44,13 +44,30 @@ vi DSMR2Emoncms
 ```
 add
 ``` sh
-/var/log/DSMR2Emoncms_Watchdog.log /var/log/DSMR2Emoncms.log /var/log/DSMR2EmoncmsWatchdog.cron.log  {
+/var/log/DSMR2Emoncms_Watchdog.log /var/log/DSMR2EmoncmsWatchdog.cron.log  {
     daily
     rotate 7
     compress
     missingok
     notifempty
     size 10M
+}
+```
+and
+``` sh
+/var/log/DSMR2Emoncms*.log {
+    daily
+    rotate 7
+    compress
+    missingok
+    notifempty
+    size 10M
+    olddir /var/log.old/DSMR2Emoncms
+    createolddir 755 root root
+    renamecopy
+    postrotate
+        kill -HUP $(pgrep -f DSMR2Emoncms.py) 2>/dev/null || true
+    endscript
 }
 ```
 
